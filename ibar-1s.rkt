@@ -15,9 +15,10 @@
 (require plot/no-gui) ; to have plot/dc
 (require plot)
 (require math/base) ; to have sum
-;(require math) ; to have mean
+(require math) ; to have mean
 (require 2htdp/batch-io) ; to import csv
 (require "csv.rkt") ; to export csv
+
 (plot-new-window? #t)
 
 ;(define N 1000) ; population
@@ -600,3 +601,70 @@ file-rank
   (let ([data (load-data file-name)])
     (out-data (string-replace file-name "report" "report2")
               (map list (take-right data 100000)))))
+
+
+(define (colorise n)
+  (cond [(<= n 4.2) 0]
+        [(and (> n 4.2)
+              (<= n 4.4)) 6]
+        [(and (> n 4.4)
+              (<= n 4.6)) 1]
+        [(and (> n 4.6)
+              (<= n 4.8)) 3]
+        [(> n 4.8) 2]))
+
+(define (load-mean folder-num s r)
+  (mean (drop (load-data
+               (string-append "R:/report"
+                              (number->string folder-num)
+                              "/s" (number->string s)
+                              "r" (number->string r)
+                              "m.txt"))
+              1)))
+
+(define (load-means folder-num)
+  (for*/list ([i (in-list speed-list)]
+              [j (in-list rounds-list)])
+    (load-mean folder-num i j)))
+
+(define point-coors
+  (for*/list
+      ([i (in-list speed-list)]
+       [j (in-list rounds-list)])
+    (list i j)))
+
+
+
+(define (find-coors-h color a-list)
+  (filter true?
+          (for/list ([i (length a-list)])
+            (and (= color (list-ref a-list i)) i))))
+
+(define (find-coors color a-list)
+  (let ([flat-coors (find-coors-h color a-list)])
+    (for/list ([i (in-list flat-coors)])
+      (list (list-ref speed-list (quotient i 5))
+            (list-ref rounds-list (remainder i 5))))))
+
+(define (true? x)
+  (not (false? x)))
+
+
+(define (plot-color color folder-num)
+  (let* ([mean-list (load-means folder-num)]
+         [color-list (map colorise mean-list)])
+    (plot
+     (points
+      (find-coors color color-list)
+      #:color color #:size 20))))
+
+(define (plot-colors folder-num)
+  (let* ([mean-list (load-means folder-num)]
+         [color-list (map colorise mean-list)]
+         [colors (remove-duplicates color-list)])
+    (plot
+     (for/list
+         ([i (length colors)])
+       (points (find-coors (list-ref colors i) color-list)
+               #:color (list-ref colors i) #:size 20
+               )))))
