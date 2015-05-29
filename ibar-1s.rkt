@@ -447,7 +447,7 @@
 
 ;; if needed, map list data..
 (define (out-data filename data)
-  (define out (open-output-file filename #:mode 'text #:exists 'replace))
+  (define out (open-output-file filename #:mode 'text #:exists 'append))
   (write-table data out)
   (close-output-port out))
 
@@ -470,16 +470,12 @@
 machine-per-type 1
 machines 100
 cycles 100000
-
 speed 5/10/15/20
 mutant-per-type 1
 mutants 1
-
 rounds-per-match 1/5/10/15/20
-
 file-mean
 file-rank
-
 |#
 
 (define (n->sr s r)
@@ -492,7 +488,7 @@ file-rank
 
 (define (n->mrt n)
   (let ([pre-name (string-append
-                  ; "R:/"
+                   "R:/"
                    (number->string n))])
     (list
      (string-append pre-name "m.txt")
@@ -507,28 +503,30 @@ file-rank
 (define rounds-list-2 (list 15 20))
 
 (define numbers-list
-  (list (list 900 0 100)
-        (list 500 0 100)
-        (list 100 800 100)
-        (list 100 400 500)
-        (list 100 0 900)
-        (list 500 0 500)
+  (list (list 400 500 100)
+        (list 600 300 100)
+        (list 800 100 100)
+        (list 600 100 300)
+        (list 400 100 500)
+        (list 200 100 700)
+        (list 0 100 900)
+        (list 100 200 700)
+        (list 200 300 500)
         ))
 
-(define (run-one-shot number-list file-list)
+(define (run-one-shot number-list file-type)
   (define A (random-one-shot-population (first number-list)
                                         (second number-list)
                                         (last number-list)))
-  (define A1 (evolve A 100 100 1 5 1 (first file-list)
-                     (second file-list)
-                     (last file-list)))
+  (define A1 (evolve A 500 100 1 5 1 "a" "b"
+                     file-type))
   (print "hi"))
 
-(define (run-one-shots number-list)
+(define (run-one-shots number-list file-type)
   (for ([i (length number-list)])
     (run-one-shot (list-ref number-list i)
-                  (n->mrt i))
-    (set! population-mean (list 0))
+                  file-type)
+;    (set! population-mean (list 0))
     (set! pure-types (list (list 0 0)))))
 
 (define (run-all list-of-speeds list-of-rounds)
@@ -551,13 +549,40 @@ file-rank
     (plot-mean (map string->number (flatten data)))
     ))
 
-(define (load-and-plot-type popu-length file-type)
+(define (load-coors file-type)
   (let ([data (read-csv-file file-type)])
-    (plot-dynamic popu-length
-                  (map (lambda (x) (map string->number x)) data))))
+    (map (lambda (x) (map string->number x)) data)))
+
+(define (load-and-divide number-list file-type)
+  (let* ([l (length number-list)]
+         [data (load-coors file-type)]
+         [data-l (length data)]
+         [unit-l (/ data-l l)])
+    (for/list ([i l])
+      (drop (take (drop data (* i unit-l)) unit-l) 1))))
+
+
+(define (load-and-plot-rd popu-length number-list file-type)
+  (let* ([data-list (load-and-divide number-list file-type)]
+         [l (length data-list)])
+    (plot
+     (for/list ([i l])
+       (lines (list-ref data-list i))
+       )
+     #:x-min 0 #:x-max popu-length
+     #:y-min 0 #:y-max popu-length
+     #:width 400 #:height 400
+     #:x-label "low" #:y-label "medium"
+     #:out-file (string-replace file-type "txt" "png"))))
+
+(define (load-and-plot-type popu-length file-type number-list)
+  (let ([l (length number-list)]
+        [data (load-coors file-type)])
+    (plot-dynamic popu-length data)))
+                  
+
 (define (plot-and-export-type popu-length file-name)
-  (let* ([data (drop (read-csv-file file-name) 1)]
-         [RD-coors (map (lambda (x) (map string->number x)) data)])
+  (let ([RD-coors (drop (load-coors file-name) 1)])
     (plot (lines RD-coors #:x-min 0 #:x-max popu-length
                  #:y-min 0 #:y-max popu-length)
           #:width 400 #:height 400
