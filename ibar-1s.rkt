@@ -668,3 +668,108 @@ file-rank
        (points (find-coors (list-ref colors i) color-list)
                #:color (list-ref colors i) #:size 20
                )))))
+
+
+(define (chop automaton)
+  (let ([body (drop automaton 1)])
+    (list
+     (take body 3)
+     (take (drop body 3) 3)
+     (take-right body 3))))
+
+(define (scan-duplicate body-part)
+  (let ([a (first body-part)]
+        [b (second body-part)]
+        [c (third body-part)])
+    (cond
+     [(= a b c) (list "H,M,L" "H,M,L" "H,M,L")]
+     [(= a b) (list "H,M" "H,M" "L")]
+     [(= a c) (list "H,L" "M" "H,L")]
+     [(= b c) (list "H" "M,L" "M,L")]
+     [else (list "H" "M" "L")]
+     )))
+
+(define (scan-duplicates automaton)
+  (flatten
+   (for/list ([i 3])
+     (scan-duplicate (list-ref (chop automaton) i)))))
+
+(define trajectories
+  (list
+   "Labeled[2 -> ~a, ~s]" "Labeled[2 -> ~a, ~s]" "Labeled[2 -> ~a, ~s]"
+   "Labeled[1 -> ~a, ~s]" "Labeled[1 -> ~a, ~s]" "Labeled[1 -> ~a, ~s]"
+   "Labeled[0 -> ~a, ~s]" "Labeled[0 -> ~a, ~s]" "Labeled[0 -> ~a, ~s]"))
+
+(define (mix-inputs automaton)
+  (map list
+     (drop automaton 1)
+     (scan-duplicates automaton)))
+
+(define (make-body automaton)
+  (let ([inputs (mix-inputs automaton)])
+    (list*
+     "Graph[{-1 -> ~a"
+     (remove-duplicates
+      (for/list ([i 9])
+        (apply format
+               (list-ref trajectories i)
+               (list-ref inputs i))))
+
+     )))
+
+
+(define (generate-code a-list posn x)
+  (let ([automaton (list-ref a-list posn)])
+    (format
+     (string-append*
+      (append
+       (list "~aGraph =
+")
+       (cdr
+        (append*
+         (map (lambda (x) (list ", " x))
+              (make-body automaton))))
+       (list "},
+   EdgeShapeFunction -> GraphElementData[\"EdgeShapeFunction\", \"FilledArrow\"],
+   VertexStyle -> LightGray,
+   VertexShapeFunction -> VertexCircle,
+   VertexLabels -> {0 -> Placed[\"L\", Center], 1 -> Placed[\"M\", Center], 2 -> Placed[\"H\", Center]}
+  ];
+")
+       (list
+        "Export[\"~a.png\", ~aGraph];
+"
+        )))
+     (name x posn)
+     (first automaton)
+     (name x posn)
+     (name x posn))))
+
+; - 1 HH HM HL MH MM ML LH LM LL
+;   1  1  1  2  0  1  2  2  1  1
+(define (generate-codes a-list x)
+  (for/list ([i (length a-list)])
+    (generate-code a-list i x)))
+
+(define (export-codes a-list x)
+  (for ([i (length a-list)])
+    (with-output-to-file "auto-code.txt"
+      (lambda () (printf (generate-code a-list i x)))
+      #:exists 'append)))
+
+(define (name x n)
+  (string->symbol (string-append x (number->string n))))
+
+(define list-2
+  (list
+   (list 2 2 2 2 0 0 0 0 2 2)
+   (list 2 0 2 2 1 1 0 0 2 2)
+   (list 2 2 2 2 0 0 0 0 2 0)
+   (list 1 2 2 2 0 0 0 0 2 0)
+   (list 2 2 2 2 0 2 0 0 2 0)
+   ))
+
+(define (resurrect x)
+  (map eval
+       (for/list ([i (length list-2)])
+         `(define ,(name x i) (apply make-automaton (list-ref list-2 ,i))))))
