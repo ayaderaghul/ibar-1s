@@ -580,7 +580,7 @@ file-rank
   (let ([l (length number-list)]
         [data (load-coors file-type)])
     (plot-dynamic popu-length data)))
-                  
+
 
 (define (plot-and-export-type popu-length file-name)
   (let ([RD-coors (drop (load-coors file-name) 1)])
@@ -769,7 +769,22 @@ file-rank
    (list 2 2 2 2 0 2 0 0 2 0)
    ))
 
+(define list-3
+  (list
+   (list 0 2 2 2 0 2 0 1 1 0)
+   (list 1 0 1 2 1 2 0 2 1 2)
+   (list 1 2 2 2 1 2 2 0 1 2)
+   (list 0 2 2 2 0 2 0 1 2 0)
+   (list 0 2 2 0 0 2 0 1 1 0)
+   (list 1 2 2 2 1 2 2 2 1 2)
+   (list 1 1 2 2 0 0 0 0 1 2)
+   (list 1 2 1 2 1 2 0 2 1 2)
+   (list 0 2 2 0 0 2 0 1 1 1)
+   (list 1 2 2 2 1 2 2 1 1 2)
+   (list 1 2 2 2 1 2 0 2 1 2)
+   ))
+
 (define (resurrect x)
   (map eval
-       (for/list ([i (length list-2)])
-         `(define ,(name x i) (apply make-automaton (list-ref list-2 ,i))))))
+       (for/list ([i (length list-3)])
+         `(define ,(name x i) (apply make-automaton (list-ref list-3 ,i))))))
