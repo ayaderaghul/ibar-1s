@@ -760,6 +760,13 @@ file-rank
 (define (name x n)
   (string->symbol (string-append x (number->string n))))
 
+(define list-1
+  (list
+   (list 2 2 2 2 0 2 0 0 0 2)
+   (list 1 0 0 2 2 0 1 0 2 2)
+   (list 2 2 2 2 1 0 0 0 0 0)
+   (list 2 2 2 2 1 2 0 0 0 0)))
+
 (define list-2
   (list
    (list 2 2 2 2 0 0 0 0 2 2)
@@ -786,5 +793,21 @@ file-rank
 
 (define (resurrect x)
   (map eval
-       (for/list ([i (length list-3)])
-         `(define ,(name x i) (apply make-automaton (list-ref list-3 ,i))))))
+       (for/list ([i (length list-1)])
+         `(define ,(name x i) (apply make-automaton (list-ref list-1 ,i))))))
+
+(define (map-string a-list)
+  (map number->string a-list))
+
+(define (map-& a-nested-list)
+  (string-append
+   (string-append*
+    (flatten
+     (map (lambda (y) (list " " y))
+          (flatten
+           (map (lambda (x) (list "&" x))
+                (map map-string a-nested-list))))))
+   "\\\\"))
+
+(define (export-latex result)
+  (out-data "result" (map list (map map-& result))))

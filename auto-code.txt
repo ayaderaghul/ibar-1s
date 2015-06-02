@@ -86,3 +86,27 @@ Graph[{-1 -> 1, Labeled[2 -> 2, "H,M,L"], Labeled[1 -> 1, "H"], Labeled[1 -> 2, 
    VertexLabels -> {0 -> Placed["L", Center], 1 -> Placed["M", Center], 2 -> Placed["H", Center]}
   ];
 Export["b10.png", b10Graph];
+c0Graph =
+Graph[{-1 -> 2, Labeled[2 -> 2, "H,M,L"], Labeled[1 -> 2, "H,M,L"], Labeled[0 -> 2, "H,L"], Labeled[0 -> 1, "M"]},
+   EdgeShapeFunction -> GraphElementData["EdgeShapeFunction", "FilledArrow"],
+   VertexStyle -> LightGray,
+   VertexShapeFunction -> VertexCircle,
+   VertexLabels -> {0 -> Placed["L", Center], 1 -> Placed["M", Center], 2 -> Placed["H", Center]}
+  ];
+Export["c0.png", c0Graph];
+d0Graph =
+Graph[{-1 -> 2, Labeled[2 -> 2, "H,M,L"], Labeled[1 -> 2, "H,M,L"], Labeled[0 -> 2, "H,M,L"]},
+   EdgeShapeFunction -> GraphElementData["EdgeShapeFunction", "FilledArrow"],
+   VertexStyle -> LightGray,
+   VertexShapeFunction -> VertexCircle,
+   VertexLabels -> {0 -> Placed["L", Center], 1 -> Placed["M", Center], 2 -> Placed["H", Center]}
+  ];
+Export["d0.png", d0Graph];
+e0Graph =
+Graph[{-1 -> 1, Labeled[2 -> 0, "H"], Labeled[2 -> 1, "M"], Labeled[2 -> 2, "L"], Labeled[1 -> 0, "H"], Labeled[1 -> 1, "M"], Labeled[1 -> 2, "L"], Labeled[0 -> 0, "H"], Labeled[0 -> 2, "M,L"]},
+   EdgeShapeFunction -> GraphElementData["EdgeShapeFunction", "FilledArrow"],
+   VertexStyle -> LightGray,
+   VertexShapeFunction -> VertexCircle,
+   VertexLabels -> {0 -> Placed["L", Center], 1 -> Placed["M", Center], 2 -> Placed["H", Center]}
+  ];
+Export["e0.png", e0Graph];
