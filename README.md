@@ -1,4 +1,4 @@
-# iterated NDG simulation
+# Iterated NDG simulation
 
 The programming language is Racket.
 
