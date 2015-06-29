@@ -13,3 +13,13 @@ It can generate Mathematica code to draw the machine/automaton in Mathematica no
 It can generate Latex code of a payoff table.
 
 It can export csv file.
+
+# Citation
+
+The csv.rkt (to convert racket data list into csv file) is Copyright © 2012 Dave Herman
+
+https://github.com/dherman/csv-write.rkt
+
+Licensed under the MIT License.
+
+I gratefully thank him.
