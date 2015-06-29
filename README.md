@@ -1,2 +1,9 @@
-# ibar-1s
- this is a variation of ibar however, i add the part to draw one shot .. dont mess things up .. things are piling up in here y.y
+# iterated NDG simulation
+
+This is a variation of code to simulate population playing iterated NDG.
+
+It can trace out the replicator dynamics for the one shot NDG.
+
+It can generate Mathematica code to draw the machine/automaton in Mathematica notebook.
+
+It can generate Latex code of a payoff table.
